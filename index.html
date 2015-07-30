@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Define the versions of IE that will be used to render the page. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <!-- Responsive -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- End Responsive -->
+
+    <!--page meta data(author,description)-->
+    <meta name="description" content="中国历史文化名村名镇" />
+    <meta name="author" content="衡阳师范学院古村古镇文化遗产数字化传承协同创新中心 版权所有">
+
+    <!--收藏夹、网页图标-->
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <link rel="icon" href="images/favicon.ico" />
+
+    <title>中国历史文化名村名镇</title>
+
+    <!--reference esri.css and dijit styles-->
+
+    <!--comment CDN map css file  temporily-->
+    <!--<link rel="stylesheet" href="//js.arcgis.com/3.13/esri/css/esri.css" />
+    <link rel="stylesheet" href="//js.arcgis.com/3.13/dijit/themes/claro/claro.css">-->
+
+    <!--local-->
+    <link rel="stylesheet" href="//localhost/arcgis_js_api/library/3.14/3.14/esri/css/esri.css" />
+    <link rel="stylesheet" href="//localhost/arcgis_js_api/library/3.14/3.14/dijit/themes/claro/claro.css">
+
+    <!--reference custom styles-->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/map-widget/layer-list.css" />
+    <link rel="stylesheet" href="css/map-widget/home-button.css" />
+    <link rel="stylesheet" href="css/map-widget/locate-button.css" />
+    <link rel="stylesheet" href="css/map-widget/measurement.css" />
+    <link rel="stylesheet" href="css/map-widget/basemap-toggle.css" />
+    <link rel="stylesheet" href="css/button-navigation.css" />
+
+    <!--对IE8进行处理-->
+    <!--[if IE 8]>
+			<link rel="stylesheet" href="css/ie.css">
+	<![endif]-->
+</head>
+
+<body class="claro app-loading no-touch">
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator">
+        <div class="loading-message" id="loading_message"></div>
+    </div>
+
+    <div id="main-wrapper" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="design:'headline',gutters:false">
+
+        <!--header-->
+        <div id="header-pane" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+            <h2>中国历史文化名村名镇</h2>
+        </div>
+
+        <!--left pane-->
+        <!--TODO:set the max min width-->
+        <div id="left-pane" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'left',splitter:true">
+
+            <!--tabContainer-->
+            <div data-dojo-type="dijit.layout.TabContainer">
+                <!--map layer list goes here-->
+                <div id="layer-list-pane" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'图层', selected:true">
+                    <!--layer list goes here-->
+                    <div id="layer-list"></div>
+                </div>
+
+                <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'图例'">
+                    <!--map legend goes here-->
+                    <div id="legend">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--right pane-->
+        <!--TODO:set the max min width-->
+        <div id="right-pane" data-dojo-type="dijit.layout.AccordionPane" data-dojo-props="region:'right',splitter:true">
+            <div data-dojo-type="dijit.layout.AccordionContainer">
+                <div data-dojo-type="dijit.layout.ContentPane" title="底图库">
+                    <div id="basemap-gallery"></div>
+                </div>
+                <div data-dojo-type="dijit.layout.ContentPane" title="书签">
+                    <div id="bookmarks">
+                    </div>
+                </div>
+                <div data-dojo-type="dijit.layout.ContentPane" title="打印">
+                    <div id="print"></div>
+                </div>
+            </div>
+        </div>
+
+        <!--map pane,"ltr" provides bidirectional support-->
+        <div id="map-pane" dir="ltr" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+
+            <div id="button-home"></div>
+
+            <div id="button-locate"></div>
+
+            <div id="measurement-wrapper">
+                <div id="titlePane" data-dojo-type="dijit/TitlePane" data-dojo-props="title:'量测',closable:true,open:false">
+                    <div id="measurement"></div>
+                    <span class="measurement-para">按住<b>CTRL</b> 允许捕捉.</span>
+                </div>
+            </div>
+
+            <div id="basemap-toggle"></div>
+            <!--<div id="controls-wrapper">
+                <div id="navigation-wrapper">
+                    <button id="button-zoom-in" type="button"></button>
+                    <button id="button-zoom-out" type="button"></button>
+                    <button id="button-pan" type="button"></button>
+                    <button id="button-previous-extent" type="button"></button>
+                    <button id="button-next-extent" type="button"></button>
+                    <button id="button-full-extent" type="button"></button>
+                </div>
+                <div id="user-defined-wrapper">
+                    <button id="button-full-screen" type="button"></button>
+                    <button id="button-measure-distance" type="button"></button>
+                    <button id="button-print" type="button"></button>
+                </div>
+            </div>-->
+        </div>
+
+    </div>
+
+    <!--    <div id="header">
+        <div id="main-logo">
+            <img src="img/main-logo.png" alt="协同中心图标" />
+        </div>
+        <div id="main-title">中国历史文化名村名镇</div>
+        <div id="main-toolset">
+            <div id="tool-search" title="查询" class="tool"></div>
+            <div id="tool-layers" title="图层" class="tool"></div>
+            <div id="tool-info" title="关于网站" class="tool"></div>
+            <div id="tool-print" title="打印" class="tool"></div>
+        </div>
+    </div>-->
+
+    <script type="text/javascript">
+        var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+        var dojoConfig = {
+
+            //允许异步操作
+            async: true,
+
+            // The locationPath logic below may look confusing but all its doing is
+            // enabling us to load the api from a CDN and load local modules from the correct location.
+            packages: [{
+                name: "application",
+                location: package_path + '/js'
+            }, {
+                name: "config",
+                location: package_path + '/config'
+            }, {
+                name: "arcgis_templates",
+                location: package_path + '/..'
+            }]
+        };
+    </script>
+
+    <!--comment CDN map javascript file  temporily-->
+    <!--<script src="http://js.arcgis.com/3.14/"></script>-->
+    <!--local-->
+    <script src="//localhost/arcgis_js_api/library/3.14/3.14/init.js"></script>
+
+    <script>
+        require([
+            "dojo/parser",
+            "config/defaultConfig",
+            "application/main",
+            "dijit/layout/BorderContainer",
+            "dijit/layout/ContentPane",
+            "dijit/layout/StackContainer",
+            "dijit/layout/TabContainer",
+            "dijit/layout/AccordionContainer",
+            "dijit/layout/AccordionPane",
+            "dijit/form/Button",
+            "dijit/TitlePane",
+            "dojo/domReady!"
+        ], function (
+            parser,
+            defaultConfig,
+            Main
+            ) {
+            parser.parse();
+            try {
+
+                // create my main application. Start placing your logic in the main.js file.
+                var myApp = new Main();
+                myApp.startup(defaultConfig);
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

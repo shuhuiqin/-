@@ -1,0 +1,7 @@
+﻿/*全图Button*/
+#basemap-toggle {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    z-index: 50;
+}

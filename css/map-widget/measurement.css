@@ -1,0 +1,11 @@
+﻿#measurement-wrapper {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    z-Index: 999;
+}
+
+.measurement-para {
+    font-size: 0.8em;
+    padding: 5px 5px;
+}

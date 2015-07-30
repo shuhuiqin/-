@@ -1,0 +1,126 @@
+
+/*Phones (520px) Small Tablets (720px)*/
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#main-wrapper {
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    width: 100%;
+}
+
+/*loading-indicator
+   app-error   
+ */
+.loading-indicator {
+    /* Loading status */
+    display: none;
+    height: 100%;
+    width: 100%;
+    z-index: 500;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    background: #fff;
+}
+
+.app-loading .loading-indicator, .app-error .loading-indicator {
+    /* Show this class when loading or error */
+    display: block;
+}
+
+.app-loading .loading-indicator {
+    /* Loading image */
+    background-position: center center;
+    background-image: url(../images/ajax-loader.gif);
+    background-repeat: no-repeat;
+}
+
+.app-error .loading-message {
+    /* Error status */
+    background-position: top center;
+    background-image: url(../images/error.png);
+    background-repeat: no-repeat;
+    padding-top: 60px;
+    width: 100%;
+    position: absolute;
+    z-index: 2;
+    top: 40%;
+    left: 0;
+    text-align: center;
+}
+
+
+#header-pane {
+    background-image: url(../images/banner.jpg);
+    background-repeat: repeat-x;
+    color: white;
+    text-align: left;
+    /*height: 60px;*/
+}
+
+#left-pane {
+    margin: 2px;
+    padding: 4px;
+    background-color: white;
+    color: #3f3f3f;
+    border: solid 2px #224a54;
+    width: 15%;
+}
+
+#right-pane {
+    margin: 2px;
+    padding: 4px;
+    background-color: white;
+    color: #3f3f3f;
+    border: solid 2px #224a54;
+    width: 18%;
+}
+
+#map-pane {
+    /*position: fixed;*/
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    /*border: solid 4px #224a54;*/
+    /*-moz-border-radius: 4px;*/
+}
+
+#footer-pane {
+    margin: 2px;
+    border: solid 2px #224a54;
+    /*background-color: #ecefe4;*/
+    color: #3f3f3f;
+    font-size: 10pt;
+    text-align: center;
+    height: 40px;
+}
+
+
+/*.dijitTabInnerDiv {
+    background-color: #ecefe4;
+}
+
+#measurementWrapper {
+    width: 240px;
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    z-Index: 60;
+}*/
+
+/*µ¼º½¹¤¾ßÀ¸*/
+/*#controls-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 100;
+}*/

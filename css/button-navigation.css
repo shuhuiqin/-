@@ -1,0 +1,31 @@
+﻿
+.button-navigation {
+    width: 26px;
+    height: 26px;
+    padding: 3px;
+    background-repeat: no-repeat;
+}
+
+.button-zoom-in {
+    background-image: url(../images/buttons/zoom-in.png);
+}
+
+.button-zoom-out {
+    background-image: url(../images/buttons/zoom-out.png);
+}
+
+.button-pan {
+    background-image: url(../images/buttons/pan.png);
+}
+
+.button-previous-extent {
+    background-image: url(../images/buttons/zoom-previous-extent.png);
+}
+
+.button-next-extent {
+    background-image: url(../images/buttons/zoom-next-extent.png);
+}
+
+.button-full-extent {
+    background-image: url(../images/buttons/zoom-full-extent.png);
+}
