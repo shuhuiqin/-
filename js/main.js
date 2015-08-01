@@ -9,7 +9,7 @@ define([
     "dojo/query", "dijit/registry",
     "dijit/Menu", "dijit/CheckedMenuItem",
     "esri/arcgis/utils", "esri/lang",
-    "esri/map", "esri/layers/ArcGISTiledMapServiceLayer",
+    "esri/map", "esri/layers/ArcGISTiledMapServiceLayer", "esri/layers/ArcGISDynamicMapServiceLayer",
     "esri/geometry/Extent", "esri/layers/FeatureLayer",
     "esri/SpatialReference", "esri/dijit/LayerList",
     "esri/dijit/Legend", "esri/dijit/HomeButton",
@@ -29,7 +29,7 @@ define([
     registry, Menu,
     CheckedMenuItem,
     arcgisUtils, esriLang,
-    Map, ArcGISTiledMapServiceLayer,
+    Map, ArcGISTiledMapServiceLayer, ArcGISDynamicMapServiceLayer,
     Extent, FeatureLayer,
     SpatialReference, LayerList,
     Legend, HomeButton,
@@ -70,11 +70,7 @@ define([
         },
 
         _createMap: function () {
-            var baseMapServiceLayer = null,
-                  options = {};//地图属性选项
-
-            //创建缓存底图图层
-            baseMapServiceLayer = new ArcGISTiledMapServiceLayer(this.config.baseMapUrl);
+            var options = {};//地图属性选项
 
             //设置地图初始化参数
             this._setMapOptions(options);
@@ -82,8 +78,12 @@ define([
             //创建地图
             this.map = new Map("map-pane", options);
 
-            //添加图层
-            this.map.addLayer(baseMapServiceLayer);
+            //添加图层到地图
+            this._addLayersToMap(
+                this.map,
+                this.config,
+                ArcGISTiledMapServiceLayer,
+                ArcGISDynamicMapServiceLayer);
 
             this._createUI();
 
@@ -96,6 +96,27 @@ define([
                     lang.hitch(this, function () {
                         this._mapLoaded();// do something with the map
                     }));
+            }
+        },
+
+        //添加图层到地图
+        _addLayersToMap: function (map, config, ArcGISTiledMapServiceLayer, ArcGISDynamicMapServiceLayer) {
+            if (map !== null) {
+                var baseMapServiceLayer = null,
+                      proviceBoundryLayer = null,
+                      villageTownLayer = null;
+
+                if (config.baseMapUrl) {
+                    baseMapServiceLayer = new ArcGISTiledMapServiceLayer(config.baseMapUrl);
+                }
+                if (config.proviceBoundryUrl) {
+                    proviceBoundryLayer = new ArcGISTiledMapServiceLayer(config.proviceBoundryUrl);
+                }
+                if (config.villageTownUrl) {
+                    villageTownLayer = new ArcGISDynamicMapServiceLayer(config.villageTownUrl);
+                }
+
+                map.addLayers([baseMapServiceLayer, proviceBoundryLayer, villageTownLayer]);
             }
         },
 

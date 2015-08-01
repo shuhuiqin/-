@@ -1,13 +1,14 @@
 ﻿define({
 
     //基础地图
+    //http://cache1.arcgisonline.cn/ArcGIS/rest/services/ChinaOnlineStreetWarm/MapServer
     "baseMapUrl": "http://cache1.arcgisonline.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer",
 
     //全国省市界限
-    "proviceBoundryUrl": "",
+    "proviceBoundryUrl": "http://cache1.arcgisonline.cn/ArcGIS/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
 
     //古村古镇点图层
-    "villageTownUrl": "",
+    "villageTownUrl": "http://localhost:6080/arcgis/rest/services/ChinaHistoricVillages/MapServer",
 
     //Enter the url to your organizations bing maps key if you want to use bing basemaps
     "bingKey": "",
