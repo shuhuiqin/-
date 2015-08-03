@@ -1,5 +1,5 @@
 define([
-    "dojo/ready", "dojo/json",
+    "dojo/ready", "dojo/json", "dojo/_base/array",
     "dojo/_base/array", "dojo/_base/Color",
     "dojo/_base/declare", "dojo/_base/lang",
     "dojo/dom", "dojo/dom-geometry", "dojo/dom-attr",
@@ -16,9 +16,14 @@ define([
     "esri/dijit/LocateButton", "esri/dijit/Scalebar",
     "esri/dijit/OverviewMap", "esri/dijit/BasemapGallery",
     "esri/dijit/Measurement", "esri/dijit/Bookmarks",
-    "esri/dijit/Print", "esri/dijit/BasemapToggle"
+    "esri/dijit/Print", "esri/dijit/BasemapToggle",
+    "esri/geometry/webMercatorUtils", "esri/geometry/Point",
+    "esri/InfoTemplate", "extras/ClusterLayer", "extras/InfoWindow",
+    "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleFillSymbol",
+	"esri/symbols/SimpleLineSymbol", "esri/symbols/PictureMarkerSymbol",
+    "esri/renderers/SimpleRenderer", "esri/renderers/ClassBreaksRenderer",
 ], function (
-    ready, JSON,
+    ready, JSON, arrayUtils,
     array, Color,
     declare, lang,
     dom, domGeometry,
@@ -36,9 +41,13 @@ define([
     LocateButton, Scalebar,
     OverviewMap, BasemapGallery,
     Measurement, Bookmarks,
-    Print, BasemapToggle
+    Print, BasemapToggle,
+    webMercatorUtils, Point,
+    InfoTemplate, ClusterLayer, InfoWindow,
+    SimpleMarkerSymbol, SimpleFillSymbol,
+    SimpleLineSymbol, PictureMarkerSymbol,
+    SimpleRenderer, ClassBreaksRenderer
     ) {
-
     return declare(null, {
         config: {},
         map: null,
@@ -48,20 +57,35 @@ define([
         editor: null,
         editableLayers: null,
         timeFormats: ["shortDateShortTime", "shortDateLEShortTime", "shortDateShortTime24", "shortDateLEShortTime24", "shortDateLongTime", "shortDateLELongTime", "shortDateLongTime24", "shortDateLELongTime24"],
+        clusterLayerTown: {},//cluster图层（数据读取自Access数据库）
 
         //启动函数
+        //TODO:优化结构
         startup: function (defaultConfig) {
             if (defaultConfig) {
                 this.config = defaultConfig;
-
-                //config对象赋值到全局对象window的config属性
-                //window.config = this.config;
 
                 // document ready，获取initExt
                 ready(lang.hitch(this, function () {
 
                     //创建map对象
                     this._createMap();
+
+                    //创建map组件
+                    this._createUI();
+
+                    // make sure map is loaded
+                    if (this.map.loaded) {
+
+                        this._mapLoaded();// do something with the map
+                    } else {
+                        on.once(this.map,
+                            "load",
+                            lang.hitch(this, function () {
+
+                                this._mapLoaded();// do something with the map
+                            }));
+                    }
                 }));
             } else {
                 var error = new Error("Main:: Config is not defined");
@@ -85,18 +109,7 @@ define([
                 ArcGISTiledMapServiceLayer,
                 ArcGISDynamicMapServiceLayer);
 
-            this._createUI();
-
-            // make sure map is loaded
-            if (this.map.loaded) {
-                this._mapLoaded();// do something with the map
-            } else {
-                on.once(this.map,
-                    "load",
-                    lang.hitch(this, function () {
-                        this._mapLoaded();// do something with the map
-                    }));
-            }
+            this._addOperationLayer();
         },
 
         //添加图层到地图
@@ -123,6 +136,13 @@ define([
         //设置地图初始化参数
         _setMapOptions: function (options) {
 
+            //声明map的自定义infoWindow对象，用于显示点图层的查询模板
+            var infoWindow = new InfoWindow({
+                domNode: domConstruct.create("div", null, dom.byId("map-pane"))
+            });
+
+            options.infoWindow = infoWindow;
+
             //设置地图属性,并创建地图
             //地图放大级别
             if (this.config.zoom) {
@@ -139,6 +159,110 @@ define([
 
             return options;
         },
+
+        //添加业务图层（古村古镇点图层）
+        _addOperationLayer: function () {
+
+            //调用handel/getData.ashx，读取access数据库，获取点数据的JSON集合
+            var deferredResult = dojo.xhrPost({
+                url: "handel/getData.ashx",
+                timeout: 3000, //Dojo会保证超时设定的有效性
+                handleAs: "json" //得到的response将被认为是JSON，并自动转为object
+            }).then(lang.hitch(this,
+                this._addClusters),
+            lang.hitch(this, function () {
+                this.reportError();
+            })
+           ); //当响应结果可用时再调用回调函数
+        },
+
+        //添加图层Cluster
+        _addClusters: function (resp) {
+
+            var wgs = new SpatialReference({
+                "wkid": 4326
+            }),
+                dataArray = [];
+
+            arrayUtils.map(resp, function (p) {
+                var latlng = new Point(parseFloat(p.x), parseFloat(p.y), wgs);
+                var webMercator = webMercatorUtils.geographicToWebMercator(latlng);
+                var attributes = {
+                    "sName": p.sName,
+                    "fullName": p.fullName,
+                    "order": p.order,
+                    "province": p.province,
+                    "county": p.county,
+                    "town": p.town,
+                    "rsImage": p.rsImage,
+                    "video": p.video,
+                    "image": p.image,
+                    "summary": p.summary,
+                    "doc": p.doc,
+                    "officialSite": p.officialSite,
+                };
+
+                var item = {
+                    "x": webMercator.x,
+                    "y": webMercator.y,
+                    "attributes": attributes
+                };
+                dataArray.push(item);
+                //FIXME:分批次过滤？
+            });
+
+            var infoTemplate= new InfoTemplate("${sName}", "${*}");
+
+            var data = dataArray.concat();
+            this.clusterLayerTown = new ClusterLayer({
+                "data": dataArray,
+                "distance": 100,
+                "id": "clusters1",
+                "labelColor": "#fff",
+                "labelOffset": 10,
+                //"resolution": this.map.extent.getWidth() / this.map.width,
+                "singleColor": "#333",
+                "singleTemplate": infoTemplate
+            });
+
+            //clusterLayerTown添加分级渲染
+            var defaultSym = new SimpleMarkerSymbol().setSize(4);
+            var renderer1 = new ClassBreaksRenderer(defaultSym, "clusterCount");
+            var picBaseUrl = "images/";
+            var blue = new PictureMarkerSymbol(picBaseUrl + "red.png", 28, 28).setOffset(0, 8);
+            var green = new PictureMarkerSymbol(picBaseUrl + "marker4.png", 38, 38).setOffset(0, 8);
+            var red = new PictureMarkerSymbol(picBaseUrl + "marker4.png", 64, 64).setOffset(0, 8);
+            renderer1.addBreak(0, 1, green);
+            renderer1.addBreak(1, 30, green);
+            renderer1.addBreak(30, 200, red);
+            this.clusterLayerTown.setRenderer(renderer1);
+
+            this.map.addLayer(this.clusterLayerTown);
+
+            // close the info window when the map is clicked
+            this.map.on("click", this._cleanUp);
+
+            // close the info window when esc is pressed
+            this.map.on("key-down", function (e) {
+                if (e.keyCode === 27) {
+                    this._cleanUp();
+                }
+            });
+
+            //初始化电子画册面板
+            //creatList(data1);
+        },
+
+        //清除infoWindow，clusterLayer
+        _cleanUp: function () {
+            if (this.map) {
+                this.map.infoWindow.hide();
+                if (this.clusterLayerTown) {
+                    this.clusterLayerTown.clearSingles();
+                }
+            }
+        },
+
 
         // Create UI，add map tools
         _createUI: function () {
@@ -276,7 +400,7 @@ define([
             if (newHeight < height) {
                 height = newHeight;
             }
-            this.map.infoWindow.resize(width, height);
+            //this.map.infoWindow.resize(width, height);
         },
 
         reportError: function (error) {
@@ -472,7 +596,6 @@ define([
                 this.editor.destroy();
                 this.editor = null;
             }
-
         },
         _addLayers: function (tool, toolbar, panelClass) {
             //Toggle layer visibility if web map has operational layers
@@ -1199,8 +1322,6 @@ define([
             } else {
                 this.mapExt = this.map.extent;
             }
-        },
-
-
+        }
     });
 });

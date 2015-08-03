@@ -42,6 +42,9 @@
     <link rel="stylesheet" href="css/map-widget/basemap-toggle.css" />
     <link rel="stylesheet" href="css/button-navigation.css" />
 
+    <!--TODO:InfoWindow样式规范化-->
+    <link href="extras/InfoWindow.css" rel="stylesheet" />
+
     <!--对IE8进行处理-->
     <!--[if IE 8]>
 			<link rel="stylesheet" href="css/ie.css">
@@ -165,8 +168,21 @@
             }, {
                 name: "arcgis_templates",
                 location: package_path + '/..'
+            }, {
+                name: "extras",
+                location: package_path + '/extras'
             }]
         };
+
+        //TODO:移植到全局函数文件中
+        function switchTab2(n) {
+            for (var i = 1; i <= 3; i++) {
+                document.getElementById("infoItem" + i).className = "";
+                document.getElementById("infoCon" + i).style.display = "none";
+            }
+            document.getElementById("infoItem" + n).className = "on";
+            document.getElementById("infoCon" + n).style.display = "block";
+        }
     </script>
 
     <!--comment CDN map javascript file  temporily-->
